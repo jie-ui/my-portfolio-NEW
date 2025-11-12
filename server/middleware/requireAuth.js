@@ -1,35 +1,29 @@
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-const requireAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  console.log(" Authorization header:", authHeader);
-
-  
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ ok: false, error: "No token provided" });
-  }
-
-  
-  const token = authHeader.split(" ")[1];
-
+export default async function requireAuth(req, res, next) {
   try {
-   
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(" Decoded token:", decoded);
+    const authHeader = req.headers.authorization;
 
-   
-    if (!decoded.id || typeof decoded.id !== "string") {
-      return res.status(400).json({ ok: false, error: "Invalid token payload (missing id)" });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ ok: false, error: "No token provided" });
     }
 
-  
-    req.user = decoded;
-    next(); 
-  } catch (err) {
-    console.error(" Token verification failed:", err.message);
-    return res.status(401).json({ ok: false, error: "Invalid or expired token" });
-  }
-};
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-export default requireAuth;
+    // 👇 从数据库中查完整用户信息（带 role）
+    const user = await User.findById(decoded.id).select("_id name email role");
+
+    if (!user) {
+      return res.status(404).json({ ok: false, error: "User not found" });
+    }
+
+    req.user = user; // 👈 这一步确保返回的数据里有 role
+    next();
+  } catch (err) {
+    console.error("Auth error:", err);
+    res.status(401).json({ ok: false, error: "Unauthorized" });
+  }
+}
 

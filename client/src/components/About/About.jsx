@@ -20,7 +20,7 @@ export default function About() {
         {/* right Text */}
         <div className={styles.right}>
           <h2 className={`${styles.title} ${styles.fadeInUp}`}>
-            Hi,👋 I’m Jie Yang
+            Hi, I’m Jie Yang
           </h2>
           <p className={`${styles.desc} ${styles.fadeInUp}`}>
             A Software Engineering Technology student passionate about full-stack development,

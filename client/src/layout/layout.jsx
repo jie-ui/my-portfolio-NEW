@@ -1,30 +1,125 @@
-import { NavLink, useLocation } from 'react-router-dom'
-import styles from './layout.module.css'
+// src/layout/Layout.jsx
+import { NavLink, useLocation, Outlet, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import http from '@/api/http'; 
+import styles from './layout.module.css';
 import v7 from '@/assets/v7.jpg';
 
 export default function Layout() {
- 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userRole, setUserRole] = useState(
+    (localStorage.getItem("role") || "").toLowerCase() // ✅ 初始化时立即取本地角色
+  );
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+
+    // 先立即同步一次缓存，保证页面立即正确渲染
+    const cachedRole = (localStorage.getItem("role") || "").toLowerCase();
+    setUserRole(cachedRole);
+
+    if (token) {
+      // 向后端获取当前用户信息
+      http.get("/profile/me")
+        .then(res => {
+          const userData = res.data?.data || {};
+          const role = (userData.role || "user").toLowerCase();
+          setUserName(userData.name || userData.email || "");
+          setUserRole(role);
+          localStorage.setItem("role", role); // ✅ 校准本地保存
+        })
+        .catch(err => {
+          console.error("❌ Failed to fetch /profile/me:", err.response?.data || err.message);
+          const status = err.response?.status;
+          // 若 token 已失效，则登出
+          if (status === 401 || status === 403) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            setIsLoggedIn(false);
+            setUserName("");
+            setUserRole("");
+            navigate("/login");
+          }
+        });
+    } else {
+      setUserName("");
+      setUserRole("");
+    }
+  }, [location, navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    setIsLoggedIn(false);
+    setUserName("");
+    setUserRole("");
+    navigate("/login");
+  };
+
+  const handleProfile = () => {
+    navigate("/profile");
+  };
+
+  const handleUsers = () => {
+    navigate("/users");
+  };
 
   return (
     <>
-    {/*Banner */}
-      
+      {/* ===== 顶部导航栏 ===== */}
       <header className={styles.topbar}>
-        <div className={styles.row}>
-          <img src={v7} alt="Logo" className={styles.logo} />
+        <div className={styles.container}>
+          <div className={styles.headerRow}>
+            <img src={v7} alt="Logo" className={styles.logo} />
+
+            <div className={styles.rightNav}>
+              {isLoggedIn ? (
+                <>
+                  {/* ✅ 只有管理员显示 Users */}
+                  {userRole === "admin" && (
+                    <button onClick={handleUsers} className={styles.logoutBtn}>
+                      👥 Users
+                    </button>
+                  )}
+
+                  <button onClick={handleProfile} className={styles.logoutBtn}>
+                    👤 Profile
+                  </button>
+
+                  <button onClick={handleLogout} className={styles.logoutBtn}>
+                    🚪 Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <NavLink to="/login" className={styles.link}>Sign In</NavLink> |
+                  <NavLink to="/signup" className={styles.link}>Sign Up</NavLink>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
-     
-      {/* NavBar */}
-        <nav className={`${styles.row} ${styles.subbar}`}>
-          <NavLink to="/">Home</NavLink>|
-          <NavLink to="/about">About Me</NavLink>|
-          <NavLink to="/projects">Projects</NavLink>|
-             <NavLink to="/services" >Services</NavLink>|
-          <NavLink to="/contact" >Contact Me</NavLink>|
-        </nav>
-      
+      {/* ===== 二级导航栏 ===== */}
+      <nav className={`${styles.navrow} ${styles.subbar}`}>
+        <NavLink to="/">Home</NavLink> |
+        <NavLink to="/about">About Me</NavLink> |
+        <NavLink to="/projects">Projects</NavLink> |
+        <NavLink to="/services">Services</NavLink> |
+        <NavLink to="/contact">Contact Me</NavLink> |
+        <NavLink to="/education">Education</NavLink>
+      </nav>
+
+      {/* ===== 页面主体内容 ===== */}
+      <div className={styles.content}>
+        <Outlet />
+      </div>
     </>
-  )
+  );
 }

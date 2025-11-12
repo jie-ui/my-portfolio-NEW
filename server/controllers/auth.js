@@ -1,34 +1,117 @@
-import bcrypt from "bcrypt";
+
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-export const signIn = async (req, res) => {
+// =============================
+//  Sign Up
+// =============================
+
+export const signUp = async (req, res, next) => {
+  const { name, email, password, role } = req.body;
+
+  try {
+    // check email
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      const err = new Error("Email already exists.");
+      err.statusCode = 400;
+      return next(err);
+    }
+
+    //  bycrypt passwaord
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    //  adimn eamill
+    const ADMIN_EMAIL = "test@example.com"; 
+
+    //  check user is admin
+    if (role === "Admin" && email !== ADMIN_EMAIL) {
+      const err = new Error("You can only register as a regular user.");
+      err.statusCode = 403;
+      return next(err);
+    }
+
+    //  align role
+    const userRole = email === ADMIN_EMAIL ? "Admin" : "User";
+
+    //  creat new user
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: userRole,
+    });
+
+    //  reuslt 
+    res.status(201).json({
+      ok: true,
+      message:
+        userRole === "Admin"
+          ? "Admin registered successfully."
+          : "User registered successfully.",
+      data: {
+        id: newUser._id,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+// =============================
+//  Sign In
+// =============================
+export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-  //1. find user
+    // find user
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ ok: false, error: "User not found" });
+    if (!user) {
+      const err = new Error("User not found");
+      err.statusCode = 401;
+      return next(err);
+    }
 
-    // 2. valid password
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ ok: false, error: "Incorrect password" });
+    // 2️verify passswaord
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      const err = new Error("Incorrect password");
+      err.statusCode = 401;
+      return next(err);
+    }
 
-    // 3. Jwt
+    //  JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES }
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || "default_secret",
+      { expiresIn: process.env.JWT_EXPIRES || "1d" }
     );
-    console.log('Generated token:', token);
-    // 4. return token
-    res.json({ ok: true, token, message: "Login successful" });
+
+    //  return respon success
+    res.status(200).json({
+      ok: true,
+      token,
+      role: user.role,
+      message: "Login successful",
+    });
   } catch (err) {
-    res.status(500).json({ ok: false, error: "Login failed" });
+    next(err);
   }
 };
-// singout
+
+// =============================
+//  Sign Out
+// =============================
 export const signOut = (req, res) => {
-  
-  res.json({ ok: true, message: "Signed out successfully" });
+  // Token .log out delelet
+  res.json({
+    ok: true,
+    message: "Signed out successfully. Token cleared on client side.",
+  });
 };
+

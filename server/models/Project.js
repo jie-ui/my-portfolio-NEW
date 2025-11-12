@@ -1,12 +1,24 @@
 import mongoose from "mongoose";
 
-const projectSchema = mongoose.Schema({
-    title: {type:String ,required:true},
-    firstname:{type:String, required:true},
-    lastname:{type:String,required:true},
-    email:{type:String,require:true},
-    completion:{type:Date, require:true},
-    description:{type:String, require:true}
-});
+const projectSchema = new mongoose.Schema(
+  {
+   
+    title: { type: String, required: true, trim: true },
+    firstname: { type: String, required: true, trim: true },
+    lastname: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
+    completion: { type: Date, required: true },
+    description: { type: String, required: true, trim: true },
 
-export default mongoose.model("Project",projectSchema);
+   
+    img: { type: String, trim: true, default: "" },              
+    tech: { type: [String], default: [] },                      
+    demo: { type: String, trim: true, default: "" },             
+    code: { type: String, trim: true, default: "" },            
+    isDefault: { type: Boolean, default: false },                
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("Project", projectSchema);
+

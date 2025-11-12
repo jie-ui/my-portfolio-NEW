@@ -13,7 +13,7 @@ export default function Home() {
         <div className={styles.copy}>
           {/* first displayn Title */}
           <h1 className={`${styles.title} ${styles.fadeInUp}`}>
-            Welcome My Portfolio 🎉
+            Welcome My Portfolio 
           </h1>
 
           {/* second display  */}

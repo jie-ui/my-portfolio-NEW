@@ -1,33 +1,41 @@
-.row{
-  max-width: var(--max);
-  margin: 0 auto;
-  padding: 0 var(--pad);
-  height: 72px;                 
+.headerRow {
   display: flex;
-  align-items: center;
+  justify-content: space-between; 
+  align-items: center;            
+  padding: 20px 0;
 }
 
-.topbar {
-  width: 100%;                 
-  background: #fff;
- 
+
+.logo {
+  height: 50px;
+  max-height: 100%;
+  object-fit: contain;
 }
+
+
+
+.rightNav a { 
+  font-size: 14px; 
+  font-weight: 600; 
+  color: #444;
+   text-decoration: none; }
+
 
 .subbar {
-  width: 100%;                
-
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
+  flex-wrap: wrap; 
+  padding: 10px 0;
 }
 
 .subbar a {
-  text-decoration: none;
-  color: #444;          
+  font-size: 16px;
   font-weight: 600;
-  font-size: 20px;
-  transition: color 0.2s ease;
+  color: #444;
+  text-decoration: none;
 }
+
 
 .subbar a:hover {
   color: #848588;        
@@ -36,5 +44,36 @@
 .subbar a.active {
   color: #000;          
   
+}
+.logoutBtn {
+  background: none;
+  border: none;
+  color: #444;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  
+}
+
+
+@media (max-width: 768px) {
+  .headerRow {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 0;
+  }
+
+  .logo {
+    height: 50px;
+    margin-bottom: 8px;
+  }
+
+  .rightNav {
+    margin-left: 0;
+  }
+
+  .subbar a {
+    font-size: 14px;
+  }
 }
 

@@ -1,4 +1,4 @@
-// controllers/projects.controller.js
+// controllers/projects.js
 import mongoose from "mongoose";
 import Project from "../models/Project.js";
 
@@ -26,7 +26,11 @@ export const getProjectById = async (req, res, next) => {
 // POST /api/projects
 export const addNewProject = async (req, res, next) => {
   try {
-    const doc = await Project.create(req.body);
+    const body = { ...req.body };
+    if (typeof body.tech === "string") {
+      body.tech = body.tech.split(",").map(t => t.trim()).filter(Boolean);
+    }
+    const doc = await Project.create(body);
     res.status(201).json({ ok: true, data: doc });
   } catch (err) { next(err); }
 };
@@ -38,7 +42,12 @@ export const updateProjectById = async (req, res, next) => {
     if (!mongoose.isValidObjectId(id))
       return res.status(400).json({ ok: false, error: "Invalid id" });
 
-    const doc = await Project.findByIdAndUpdate(id, req.body, {
+    const body = { ...req.body };
+    if (typeof body.tech === "string") {
+      body.tech = body.tech.split(",").map(t => t.trim()).filter(Boolean);
+    }
+
+    const doc = await Project.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
       context: "query",
@@ -61,10 +70,11 @@ export const deleteProjectById = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-// DELETE /api/projects
+// DELETE /api/projects  
 export const deleteAllProjects = async (_req, res, next) => {
   try {
     const r = await Project.deleteMany({});
     res.json({ ok: true, deletedCount: r.deletedCount });
   } catch (err) { next(err); }
 };
+
