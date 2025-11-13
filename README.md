@@ -84,8 +84,7 @@ portfolio-fullstack/
 ## 🚀 Live Demo
 The website is deployed here:
 
-👉 **Live Website:** *(Add your Vercel link here)*  
-
+👉 **Live Website:
 ---
 
 ## 📦 GitHub Repository
