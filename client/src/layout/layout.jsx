@@ -1,62 +1,23 @@
 // src/layout/Layout.jsx
 import { NavLink, useLocation, Outlet, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import http from '@/api/http'; 
+import { useAuth } from '@/auth/authContext'; // 导入useAuth
 import styles from './layout.module.css';
 import v7 from '@/assets/v7.jpg';
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // 关键修改：使用AuthProvider的状态
+  const { token, user, signout } = useAuth();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [userRole, setUserRole] = useState(
-    (localStorage.getItem("role") || "").toLowerCase() 
-  );
+  // 从AuthProvider的状态计算派生值
+  const isLoggedIn = !!token;
+  const userName = user?.name || user?.email || "";
+  const userRole = (user?.role || "").toLowerCase();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-
-
-    const cachedRole = (localStorage.getItem("role") || "").toLowerCase();
-    setUserRole(cachedRole);
-
-    if (token) {
-      http.get("/profile/me")
-        .then(res => {
-          const userData = res.data?.data || {};
-          const role = (userData.role || "user").toLowerCase();
-          setUserName(userData.name || userData.email || "");
-          setUserRole(role);
-          localStorage.setItem("role", role); 
-        })
-        .catch(err => {
-          console.error("❌ Failed to fetch /profile/me:", err.response?.data || err.message);
-          const status = err.response?.status;
-        
-          if (status === 401 || status === 403) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("role");
-            setIsLoggedIn(false);
-            setUserName("");
-            setUserRole("");
-            navigate("/login");
-          }
-        });
-    } else {
-      setUserName("");
-      setUserRole("");
-    }
-  }, [location, navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setIsLoggedIn(false);
-    setUserName("");
-    setUserRole("");
+  const handleLogout = async () => {
+    await signout(); // 使用AuthProvider的退出方法
     navigate("/login");
   };
 
@@ -70,7 +31,6 @@ export default function Layout() {
 
   return (
     <>
-
       <header className={styles.topbar}>
         <div className={styles.container}>
           <div className={styles.headerRow}>
@@ -79,7 +39,6 @@ export default function Layout() {
             <div className={styles.rightNav}>
               {isLoggedIn ? (
                 <>
-              
                   {userRole === "admin" && (
                     <button onClick={handleUsers} className={styles.logoutBtn}>
                       👥 Users
@@ -93,6 +52,8 @@ export default function Layout() {
                   <button onClick={handleLogout} className={styles.logoutBtn}>
                     🚪 Logout
                   </button>
+                  
+                 
                 </>
               ) : (
                 <>
@@ -114,7 +75,6 @@ export default function Layout() {
         <NavLink to="/education">Education</NavLink>
       </nav>
 
-   
       <div className={styles.content}>
         <Outlet />
       </div>
