@@ -1,23 +1,62 @@
 // src/layout/Layout.jsx
 import { NavLink, useLocation, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/auth/authContext'; 
+import { useState, useEffect } from 'react';
+import http from '@/api/http'; 
 import styles from './layout.module.css';
 import v7 from '@/assets/v7.jpg';
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  
- 
-  const { token, user, signout } = useAuth();
 
- 
-  const isLoggedIn = !!token;
-  const userName = user?.name || user?.email || "";
-  const userRole = (user?.role || "").toLowerCase();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userRole, setUserRole] = useState(
+    (localStorage.getItem("role") || "").toLowerCase()   );
 
-  const handleLogout = async () => {
-    await signout(); 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+
+
+    const cachedRole = (localStorage.getItem("role") || "").toLowerCase();
+    setUserRole(cachedRole);
+
+    if (token) {
+     
+      http.get("/profile/me")
+        .then(res => {
+          const userData = res.data?.data || {};
+          const role = (userData.role || "user").toLowerCase();
+          setUserName(userData.name || userData.email || "");
+          setUserRole(role);
+          localStorage.setItem("role", role); // 
+        })
+        .catch(err => {
+          console.error("❌ Failed to fetch /profile/me:", err.response?.data || err.message);
+          const status = err.response?.status;
+      
+          if (status === 401 || status === 403) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            setIsLoggedIn(false);
+            setUserName("");
+            setUserRole("");
+            navigate("/login");
+          }
+        });
+    } else {
+      setUserName("");
+      setUserRole("");
+    }
+  }, [location, navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    setIsLoggedIn(false);
+    setUserName("");
+    setUserRole("");
     navigate("/login");
   };
 
@@ -39,6 +78,7 @@ export default function Layout() {
             <div className={styles.rightNav}>
               {isLoggedIn ? (
                 <>
+                
                   {userRole === "admin" && (
                     <button onClick={handleUsers} className={styles.logoutBtn}>
                       👥 Users
@@ -52,8 +92,6 @@ export default function Layout() {
                   <button onClick={handleLogout} className={styles.logoutBtn}>
                     🚪 Logout
                   </button>
-                  
-                 
                 </>
               ) : (
                 <>
@@ -66,6 +104,7 @@ export default function Layout() {
         </div>
       </header>
 
+      
       <nav className={`${styles.navrow} ${styles.subbar}`}>
         <NavLink to="/">Home</NavLink> |
         <NavLink to="/about">About Me</NavLink> |
