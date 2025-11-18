@@ -11,7 +11,7 @@ router.get("/me", requireAuth, async (req, res) => {
   try {
     res.status(200).json({
       ok: true,
-      data: req.user, // 👈 已包含 role
+      data: req.user, 
       message: "Fetched user successfully",
     });
   } catch (err) {

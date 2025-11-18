@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children, role }) {
     return <Navigate to="/login" replace />;
   }
 
-  // 统一小写再比较
+
   if (role && userRole?.toLowerCase() !== role.toLowerCase()) {
     return <Navigate to="/" replace />;
   }

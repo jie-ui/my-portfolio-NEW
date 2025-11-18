@@ -12,31 +12,30 @@ export default function Layout() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState(
-    (localStorage.getItem("role") || "").toLowerCase() // ✅ 初始化时立即取本地角色
+    (localStorage.getItem("role") || "").toLowerCase() 
   );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
 
-    // 先立即同步一次缓存，保证页面立即正确渲染
+
     const cachedRole = (localStorage.getItem("role") || "").toLowerCase();
     setUserRole(cachedRole);
 
     if (token) {
-      // 向后端获取当前用户信息
       http.get("/profile/me")
         .then(res => {
           const userData = res.data?.data || {};
           const role = (userData.role || "user").toLowerCase();
           setUserName(userData.name || userData.email || "");
           setUserRole(role);
-          localStorage.setItem("role", role); // ✅ 校准本地保存
+          localStorage.setItem("role", role); 
         })
         .catch(err => {
           console.error("❌ Failed to fetch /profile/me:", err.response?.data || err.message);
           const status = err.response?.status;
-          // 若 token 已失效，则登出
+        
           if (status === 401 || status === 403) {
             localStorage.removeItem("token");
             localStorage.removeItem("role");
@@ -71,7 +70,7 @@ export default function Layout() {
 
   return (
     <>
-      {/* ===== 顶部导航栏 ===== */}
+
       <header className={styles.topbar}>
         <div className={styles.container}>
           <div className={styles.headerRow}>
@@ -80,7 +79,7 @@ export default function Layout() {
             <div className={styles.rightNav}>
               {isLoggedIn ? (
                 <>
-                  {/* ✅ 只有管理员显示 Users */}
+              
                   {userRole === "admin" && (
                     <button onClick={handleUsers} className={styles.logoutBtn}>
                       👥 Users
@@ -106,7 +105,6 @@ export default function Layout() {
         </div>
       </header>
 
-      {/* ===== 二级导航栏 ===== */}
       <nav className={`${styles.navrow} ${styles.subbar}`}>
         <NavLink to="/">Home</NavLink> |
         <NavLink to="/about">About Me</NavLink> |
@@ -116,7 +114,7 @@ export default function Layout() {
         <NavLink to="/education">Education</NavLink>
       </nav>
 
-      {/* ===== 页面主体内容 ===== */}
+   
       <div className={styles.content}>
         <Outlet />
       </div>
