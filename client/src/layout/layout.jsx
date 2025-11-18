@@ -8,16 +8,16 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // 关键修改：使用AuthProvider的状态
+ 
   const { token, user, signout } = useAuth();
 
-  // 从AuthProvider的状态计算派生值
+ 
   const isLoggedIn = !!token;
   const userName = user?.name || user?.email || "";
   const userRole = (user?.role || "").toLowerCase();
 
   const handleLogout = async () => {
-    await signout(); // 使用AuthProvider的退出方法
+    await signout(); 
     navigate("/login");
   };
 
