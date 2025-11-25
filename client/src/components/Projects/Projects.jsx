@@ -71,9 +71,13 @@ export default function Projects() {
             >
               {p.img && (
                 <div className={styles.imageBox}>
-                  <img src={p.img} alt={p.title} />
+                  <img
+                    src={`${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${p.img}`}
+                    alt={p.title}
+                  />
                 </div>
               )}
+
 
               <h3 className={styles.cardTitle}>{p.title}</h3>
               <p className={styles.cardDesc}>{p.description}</p>
@@ -81,7 +85,7 @@ export default function Projects() {
               <p className={styles.cardAuthor}>
                 {p.firstname} {p.lastname} — {p.email}
               </p>
-              
+
               {p.completion && (
                 <p className={styles.cardDate}>
                   Completion: {new Date(p.completion).toLocaleDateString()}
