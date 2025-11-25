@@ -11,6 +11,27 @@ export default function Projects() {
   const role = typeof window !== "undefined" ? localStorage.getItem("role") : "";
   const isAdmin = role === "admin";
 
+  // 从 VITE_API_BASE_URL 获取 Render 后端根域名
+  const API_BASE = import.meta.env.VITE_API_BASE_URL; // https://your-render/api
+  const BACKEND_URL = API_BASE.replace("/api", "");   // https://your-render.com
+
+  // 通用图片 URL 构造
+  const getImgUrl = (imgPath) => {
+    if (!imgPath) return "";
+
+    // 打印看看后端到底返回什么
+    console.log("IMG from backend:", imgPath);
+
+    // 如果后端返回完整 URL（http 开头），直接用
+    if (imgPath.startsWith("http")) return imgPath;
+
+    // 如果后端返回没有 "/"，自动补上
+    if (!imgPath.startsWith("/")) imgPath = "/" + imgPath;
+
+    // 最终拼接可访问 URL
+    return BACKEND_URL + imgPath;
+  };
+
   useEffect(() => {
     let ignore = false;
     (async () => {
@@ -24,7 +45,9 @@ export default function Projects() {
         if (!ignore) setLoading(false);
       }
     })();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleDelete = async (id) => {
@@ -56,7 +79,10 @@ export default function Projects() {
 
         {isAdmin && (
           <div className={styles.addBtnWrapper}>
-            <button className={styles.addButton} onClick={() => navigate("/projects/add")}>
+            <button
+              className={styles.addButton}
+              onClick={() => navigate("/projects/add")}
+            >
               ＋ Add Project
             </button>
           </div>
@@ -72,12 +98,12 @@ export default function Projects() {
               {p.img && (
                 <div className={styles.imageBox}>
                   <img
-                    src={`${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${p.img}`}
+                    src={getImgUrl(p.img)}
                     alt={p.title}
+                    style={{ width: "100%", objectFit: "cover" }}
                   />
                 </div>
               )}
-
 
               <h3 className={styles.cardTitle}>{p.title}</h3>
               <p className={styles.cardDesc}>{p.description}</p>
@@ -102,12 +128,22 @@ export default function Projects() {
 
               <div className={styles.links}>
                 {p.demo && (
-                  <a href={p.demo} target="_blank" rel="noreferrer" className={styles.btn}>
+                  <a
+                    href={p.demo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={styles.btn}
+                  >
                     Live Demo
                   </a>
                 )}
                 {p.code && (
-                  <a href={p.code} target="_blank" rel="noreferrer" className={styles.btnOutline}>
+                  <a
+                    href={p.code}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={styles.btnOutline}
+                  >
                     Source Code
                   </a>
                 )}
@@ -120,7 +156,10 @@ export default function Projects() {
                     >
                       Edit
                     </button>
-                    <button className={styles.btn} onClick={() => handleDelete(p._id)}>
+                    <button
+                      className={styles.btn}
+                      onClick={() => handleDelete(p._id)}
+                    >
                       Delete
                     </button>
                   </>
