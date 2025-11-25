@@ -8,8 +8,11 @@ It showcases my background, skills, featured projects, and includes full CRUD fu
 ## 📁 Project Structure
 
 portfolio-fullstack/
+
 ├── client/ # React frontend
+
 ├── server/ # Node/Express backend
+
 └── README.md
 
 ---
