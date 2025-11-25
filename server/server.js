@@ -20,16 +20,35 @@ import { errorController } from "./controllers/errorController.js";
 
 dotenv.config();
 
-// --- __dirname in ESM ---
+// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// CORS
+/* -------------------------------------------------------
+   CORS 
+------------------------------------------------------- */
+
+const allowedOrigins = [
+  "https://my-portfolio-new-blush.vercel.app",
+  "http://localhost:5173",
+  process.env.RENDER_EXTERNAL_URL, 
+];
+
+
+const cleanOrigins = allowedOrigins.filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || cleanOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ Blocked CORS request from:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -39,7 +58,9 @@ app.use(express.json());
 // uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// API 
+/* -------------------------------------------------------
+   Routes
+------------------------------------------------------- */
 app.use("/api/auth", authRouter);
 app.use("/api/profile", profileRoutes);
 app.use("/api/contacts", contactsRouter);
@@ -48,26 +69,27 @@ app.use("/api/projects", projectsRouter);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/users", userRouter);
 
-// error
+// error controller
 app.use(errorController);
 
-
+// default route
 app.get("/", (_req, res) => {
-  res.json({ message: "Welcome to My Portfolio application." });
+  res.json({ message: "Welcome to My Portfolio backend API." });
 });
 
-
-
-const URL = process.env.MONGODB_URI;
-
+// MongoDB
 mongoose
-  .connect(URL)
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error(" MongoDB connection error:", err.message));
+  .catch((err) => console.error("❌ MongoDB connection error:", err.message));
 
 // START
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`Backend running on http://localhost:${PORT}`)
-);
+
+app.listen(PORT, () => {
+  console.log("======================================");
+  console.log(`🚀 Server is running on PORT: ${PORT}`);
+  console.log(`🌐 External URL: ${process.env.RENDER_EXTERNAL_URL || "Local dev"}`);
+  console.log("======================================");
+});
 
