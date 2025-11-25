@@ -57,7 +57,7 @@ app.get("/", (_req, res) => {
 });
 
 
-console.log("🧩 MONGO_URI:", process.env.MONGODB_URI);
+
 const URL = process.env.MONGODB_URI;
 
 mongoose
