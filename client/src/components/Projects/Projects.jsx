@@ -11,24 +11,24 @@ export default function Projects() {
   const role = typeof window !== "undefined" ? localStorage.getItem("role") : "";
   const isAdmin = role === "admin";
 
-  // 从 VITE_API_BASE_URL 获取 Render 后端根域名
-  const API_BASE = import.meta.env.VITE_API_BASE_URL; // https://your-render/api
-  const BACKEND_URL = API_BASE.replace("/api", "");   // https://your-render.com
+  
+  const API_BASE = import.meta.env.VITE_API_BASE_URL; 
+  const BACKEND_URL = API_BASE.replace("/api", "");  
 
-  // 通用图片 URL 构造
+  
   const getImgUrl = (imgPath) => {
     if (!imgPath) return "";
 
-    // 打印看看后端到底返回什么
+    
     console.log("IMG from backend:", imgPath);
 
-    // 如果后端返回完整 URL（http 开头），直接用
+ 
     if (imgPath.startsWith("http")) return imgPath;
 
-    // 如果后端返回没有 "/"，自动补上
+
     if (!imgPath.startsWith("/")) imgPath = "/" + imgPath;
 
-    // 最终拼接可访问 URL
+
     return BACKEND_URL + imgPath;
   };
 
