@@ -1,31 +1,38 @@
-// server/routes/uploads.js
+// server/routers/uploads.js
 import { Router } from "express";
 import multer from "multer";
 import requireAuth from "../middleware/requireAuth.js";
 import requireRole from "../middleware/requireRole.js";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const router = Router();
 
-// local/uploads
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, "uploads"),
-  filename: (_req, file, cb) => {
-    const safe = file.originalname.replace(/[^\w.\-]/g, "_");
-    cb(null, Date.now() + "_" + safe);
+/* ----------------------------------------
+  Cloudinary Config
+----------------------------------------- */
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+/* ----------------------------------------
+  Multer Storage on Cloudinary
+----------------------------------------- */
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "portfolio-projects",
+    allowed_formats: ["jpg", "png", "jpeg", "webp"],
   },
 });
 
-const allowed = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (!allowed.has(file.mimetype)) return cb(new Error("Only image files"));
-    cb(null, true);
-  },
-});
+const upload = multer({ storage });
 
-// Only Admin 
+/* ----------------------------------------
+  Upload Route (Admin only)
+----------------------------------------- */
 router.post(
   "/image",
   requireAuth,
@@ -33,10 +40,13 @@ router.post(
   upload.single("image"),
   (req, res) => {
     if (!req.file) {
-      return res.status(400).json({ ok: false, error: "No file" });
+      return res.status(400).json({ ok: false, error: "No file uploaded" });
     }
-    const url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-    res.json({ ok: true, url });
+
+    return res.json({
+      ok: true,
+      url: req.file.path, // Cloudinary return URL
+    });
   }
 );
 

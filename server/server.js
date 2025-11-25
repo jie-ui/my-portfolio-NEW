@@ -55,8 +55,8 @@ app.use(
 
 app.use(express.json());
 
-// uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
 
 /* -------------------------------------------------------
    Routes

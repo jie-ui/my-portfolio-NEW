@@ -97,13 +97,10 @@ export default function Projects() {
             >
               {p.img && (
                 <div className={styles.imageBox}>
-                  <img
-                    src={getImgUrl(p.img)}
-                    alt={p.title}
-                    style={{ width: "100%", objectFit: "cover" }}
-                  />
+                  <img src={p.img} alt={p.title} />
                 </div>
               )}
+
 
               <h3 className={styles.cardTitle}>{p.title}</h3>
               <p className={styles.cardDesc}>{p.description}</p>
