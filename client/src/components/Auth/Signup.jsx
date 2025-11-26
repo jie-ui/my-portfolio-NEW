@@ -9,7 +9,7 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("User"); // default User
+  const [role, setRole] = useState("user"); // default User
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e) => {
@@ -61,8 +61,8 @@ export default function Signup() {
         onChange={(e) => setRole(e.target.value)}
         style={{ width: "100%", padding: 10, marginTop: 12 }}
       >
-        <option value="User">User</option>
-        <option value="Admin">Admin</option>
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
       </select>
 
       <button

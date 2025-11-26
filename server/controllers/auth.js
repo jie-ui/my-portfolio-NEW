@@ -26,14 +26,14 @@ export const signUp = async (req, res, next) => {
     const ADMIN_EMAIL = "test@example.com"; 
 
     //  check user is admin
-    if (role === "Admin" && email !== ADMIN_EMAIL) {
+    if (role === "admin" && email !== ADMIN_EMAIL) {
       const err = new Error("You can only register as a regular user.");
       err.statusCode = 403;
       return next(err);
     }
 
     //  align role
-    const userRole = email === ADMIN_EMAIL ? "Admin" : "User";
+    const userRole = email === ADMIN_EMAIL ? "admin" : "user";
 
     //  creat new user
     const newUser = await User.create({
@@ -47,9 +47,9 @@ export const signUp = async (req, res, next) => {
     res.status(201).json({
       ok: true,
       message:
-        userRole === "Admin"
-          ? "Admin registered successfully."
-          : "User registered successfully.",
+        userRole === "admin"
+          ? "admin registered successfully."
+          : "user registered successfully.",
       data: {
         id: newUser._id,
         email: newUser.email,
