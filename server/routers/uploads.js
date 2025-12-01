@@ -36,7 +36,7 @@ const upload = multer({ storage });
 router.post(
   "/image",
   requireAuth,
-  requireRole("Admin"),
+  requireRole("admin"),
   upload.single("image"),
   (req, res) => {
     if (!req.file) {

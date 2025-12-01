@@ -16,12 +16,12 @@ const router = express.Router();
 
 
 
-router.get("/",requireAuth, requireRole("Admin"), getAllUsers);
-router.get("/:id",requireAuth, requireRole("Admin"), getUserById);
-router.post("/", requireAuth, requireRole("Admin"),addNewUser);
-router.put("/:id",requireAuth, requireRole("Admin"), updateUserById);
-router.delete("/:id",requireAuth, requireRole("Admin"), deleteUserById);
-router.delete("/",requireAuth, requireRole("Admin"),deleteAllUsers);
+router.get("/",requireAuth, requireRole("admin"), getAllUsers);
+router.get("/:id",requireAuth, requireRole("admin"), getUserById);
+router.post("/", requireAuth, requireRole("admin"),addNewUser);
+router.put("/:id",requireAuth, requireRole("admin"), updateUserById);
+router.delete("/:id",requireAuth, requireRole("admin"), deleteUserById);
+router.delete("/",requireAuth, requireRole("admin"),deleteAllUsers);
 
 
 
