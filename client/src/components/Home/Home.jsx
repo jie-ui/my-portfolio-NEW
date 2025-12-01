@@ -15,6 +15,7 @@ export default function Home() {
           <h1 className={`${styles.title} ${styles.fadeInUp}`}>
             Welcome My Portfolio 
           </h1>
+          <h2>This is a CI/CD update test.</h2>
 
           {/* second display  */}
           <p className={`${styles.desc} ${styles.fadeInUp}`}>

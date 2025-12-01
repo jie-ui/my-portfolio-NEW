@@ -25,10 +25,10 @@ router.get("/me", requireAuth, async (req, res) => {
 
 
 
-router.get("/all", requireAuth, requireRole("Admin"), async (req, res) => {
+router.get("/all", requireAuth, requireRole("admin"), async (req, res) => {
   try {
     const users = await User.find().select("-password");
-    res.json({ ok: true, data: users, message: "Fetched all users (Admin)" });
+    res.json({ ok: true, data: users, message: "Fetched all users (admin)" });
   } catch (err) {
     console.error("Fetch all users error:", err);
     res.status(500).json({ ok: false, error: "Failed to fetch users" });

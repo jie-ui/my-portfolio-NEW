@@ -16,10 +16,10 @@ const router = Router();
 router.post("/", addNewContact);
 
 
-router.get("/", requireAuth, requireRole("Admin"), getAllContacts);
-router.get("/:id", requireAuth, requireRole("Admin"), getContactById);
-router.put("/:id", requireAuth, requireRole("Admin"), updateContactById);
-router.delete("/:id", requireAuth, requireRole("Admin"), deleteContactById);
-router.delete("/", requireAuth, requireRole("Admin"), deleteAllContacts);
+router.get("/", requireAuth, requireRole("admin"), getAllContacts);
+router.get("/:id", requireAuth, requireRole("admin"), getContactById);
+router.put("/:id", requireAuth, requireRole("admin"), updateContactById);
+router.delete("/:id", requireAuth, requireRole("admin"), deleteContactById);
+router.delete("/", requireAuth, requireRole("admin"), deleteAllContacts);
 
 export default router;

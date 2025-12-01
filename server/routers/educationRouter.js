@@ -13,13 +13,13 @@ import requireRole from "../middleware/requireRole.js";
 const router = Router();
 
 
-router.get("/", requireAuth, requireRole("User","Admin"),getAllQualifications);
-router.get("/:id",requireAuth, requireRole("User","Admin"), getQualificationById);
+router.get("/", requireAuth, requireRole("user","admin"),getAllQualifications);
+router.get("/:id",requireAuth, requireRole("user","admin"), getQualificationById);
 
 
-router.post("/", requireAuth, requireRole("Admin"), addNewQualification);
-router.put("/:id", requireAuth, requireRole("Admin"), updateQualificationById);
-router.delete("/:id", requireAuth, requireRole("Admin"), deleteQualificationById);
-router.delete("/", requireAuth, requireRole("Admin"), deleteAllQualifications);
+router.post("/", requireAuth, requireRole("admin"), addNewQualification);
+router.put("/:id", requireAuth, requireRole("admin"), updateQualificationById);
+router.delete("/:id", requireAuth, requireRole("admin"), deleteQualificationById);
+router.delete("/", requireAuth, requireRole("admin"), deleteAllQualifications);
 
 export default router;
